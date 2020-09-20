@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\VacationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -15,30 +14,31 @@ class Vacation
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"add", "user_list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("add") 
+     * @Groups({"add", "user_list"})
      */
-    private $date_start;
+    private $dateStart;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("add")
+     * @Groups({"add", "user_list"})
      */
-    private $date_end;
+    private $dateEnd;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="vacations")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("add")
      */
     private $employee;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"add", "user_list"})
      */
     private $status;
 
@@ -49,24 +49,24 @@ class Vacation
 
     public function getDateStart(): ?string
     {
-        return $this->date_start;
+        return $this->dateStart;
     }
 
-    public function setDateStart(string $date_start): self
+    public function setDateStart(string $dateStart): self
     {
-        $this->date_start = $date_start;
+        $this->dateStart = $dateStart;
 
         return $this;
     }
 
     public function getDateEnd(): ?string
     {
-        return $this->date_end;
+        return $this->dateEnd;
     }
 
-    public function setDateEnd(string $date_end): self
+    public function setDateEnd(string $dateEnd): self
     {
-        $this->date_end = $date_end;
+        $this->dateEnd = $dateEnd;
 
         return $this;
     }
