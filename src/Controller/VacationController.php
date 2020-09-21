@@ -12,10 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class VacationController extends AbstractController
 {
@@ -24,23 +25,12 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/users/{userId}/vacations", name="list_vacations", methods={"GET"})
      */
-    public function getVacations(UserRepository $userRepo, $userId)
+    public function read(UserRepository $userRepo, $userId)
     {
         $user = $userRepo->find($userId);
         $data = $user->getVacations();
 
-        $encoders = [new JsonEncoder()];
-        $defaultContext = [
-            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context) {
-                return $object->getId();
-            },
-        ];
-        $normalizers = [new ObjectNormalizer(null, null, null, null, null, null, $defaultContext)];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        $vacations = $serializer->serialize($data, 'json', []);
-
-        return new Response($vacations, 200);
+        return $this->json($data, 200, [], ['groups' => 'add_vac']);
     }
 
 
@@ -49,7 +39,7 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/users/{userId}/vacations", name="add_vacations", methods={"POST"})
      */
-    public function addVacation($userId, Request $request, UserRepository $userRepo, EntityManagerInterface $em)
+    public function create($userId, Request $request, UserRepository $userRepo, EntityManagerInterface $em, ValidatorInterface $validator)
     {
         $data = $request->getContent();
 
@@ -57,14 +47,23 @@ class VacationController extends AbstractController
         $normalizers = [new ObjectNormalizer()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $vacation = $serializer->deserialize($data, Vacation::class, "json");
-        $vacation->setStatus("en attente");
-        $vacation->setEmployee($userRepo->find($userId));
+        try {
+            $vacation = $serializer->deserialize($data, Vacation::class, "json");
+            $vacation->setStatus("en attente");
+            $vacation->setEmployee($userRepo->find($userId));
 
-        $em->persist($vacation);
-        $em->flush();
+            $errors = $validator->validate($vacation);
+            if(count($errors) > 0) {
+                return $this->json($errors, 400);
+            }
 
-        return $this->json($vacation, 201, [], ['groups' => 'add']);
+            $em->persist($vacation);
+            $em->flush();
+
+            return $this->json($vacation, 201, [], ['groups' => 'add_vac']);
+        } catch(NotEncodableValueException $e) {
+            return $this->json(["message" => $e->getMessage()], 400);
+        }
     }
 
 
@@ -73,7 +72,7 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/users/{userId}/vacations/{vacationId}", name="cancel_vacations", methods={"DELETE"})
      */
-    public function cancelVacation($userId, $vacationId, VacationRepository $vrepo, EntityManagerInterface $em)
+    public function delete($userId, $vacationId, VacationRepository $vrepo, EntityManagerInterface $em)
     {
         $vacation = $vrepo->find($vacationId);
         if(!$vacation) {
@@ -91,7 +90,7 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/users/{userId}/vacations/{vacationId}", name="validated_vacation", methods={"PATCH"})
      */
-    public function validatedVacation($userId, $vacationId, VacationRepository $vrepo, Request $request, EntityManagerInterface $em)
+    public function update($userId, $vacationId, VacationRepository $vrepo, Request $request, EntityManagerInterface $em)
     {
         $data = json_decode($request->getContent());
         $code = 200;
@@ -122,11 +121,11 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/vacations", name="all_vacations", methods={"GET"})
      */
-    public function AllVacations(UserRepository $urepo)
+    public function list(UserRepository $urepo)
     {
         $vacations = $urepo->findAll();
 
-        return $this->json($vacations, 200, [], ['groups' => 'user_list']);
+        return $this->json($vacations, 200, [], ['groups' => 'vac_list']);
     }
 
 }

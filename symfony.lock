@@ -260,6 +260,30 @@
             "./config/routes.yaml"
         ]
     },
+    "symfony/security-bundle": {
+        "version": "4.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.4",
+            "ref": "7b4408dc203049666fe23fabed23cbadc6d8440f"
+        },
+        "files": [
+            "./config/packages/security.yaml"
+        ]
+    },
+    "symfony/security-core": {
+        "version": "v4.4.13"
+    },
+    "symfony/security-csrf": {
+        "version": "v4.4.13"
+    },
+    "symfony/security-guard": {
+        "version": "v4.4.13"
+    },
+    "symfony/security-http": {
+        "version": "v4.4.13"
+    },
     "symfony/serializer": {
         "version": "v4.4.13"
     },
@@ -268,6 +292,22 @@
     },
     "symfony/stopwatch": {
         "version": "v4.4.13"
+    },
+    "symfony/translation-contracts": {
+        "version": "v2.2.0"
+    },
+    "symfony/validator": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "d902da3e4952f18d3bf05aab29512eb61cabd869"
+        },
+        "files": [
+            "./config/packages/test/validator.yaml",
+            "./config/packages/validator.yaml"
+        ]
     },
     "symfony/var-dumper": {
         "version": "v4.4.13"

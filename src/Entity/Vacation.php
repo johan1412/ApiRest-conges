@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=VacationRepository::class)
@@ -14,33 +15,39 @@ class Vacation
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"add", "user_list"})
+     * @Groups({"user_list","add_vac", "vac_list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"add", "user_list"})
+     * @Groups({"user_list","add_vac", "vac_list"})
+     * @Assert\NotBlank
      */
     private $dateStart;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"add", "user_list"})
+     * @Groups({"user_list","add_vac", "vac_list"})
+     * @Assert\NotBlank
      */
     private $dateEnd;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="vacations")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $employee;
-
-    /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"add", "user_list"})
+     * @Groups({"user_list","add_vac", "vac_list"})
+     * @Assert\NotBlank
+     * @Assert\Choice({"En attente", "Valide", "Refus"})
      */
     private $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="vacations")
+     * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank
+     */
+    private $user;
+
 
     public function getId(): ?int
     {
@@ -71,18 +78,6 @@ class Vacation
         return $this;
     }
 
-    public function getEmployee(): ?User
-    {
-        return $this->employee;
-    }
-
-    public function setEmployee(?User $employee): self
-    {
-        $this->employee = $employee;
-
-        return $this;
-    }
-
     public function getStatus(): ?string
     {
         return $this->status;
@@ -91,6 +86,18 @@ class Vacation
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
