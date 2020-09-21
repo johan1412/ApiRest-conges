@@ -21,9 +21,11 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users", name="list_users", methods={"GET"})
      */
-    public function liste()
+    public function read(UserRepository $urepo)
     {
-        
+        $users = $urepo->findAll();
+
+        return $this->json($users, 200, [], ['groups' => 'user_list']);
     }
 
 
@@ -32,7 +34,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users", name="add_user", methods="POST")
      */
-    public function addUser(Request $request, ValidatorInterface $validator, EntityManagerInterface $em)
+    public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em)
     {   
         $data = $request->getContent();
 
@@ -64,7 +66,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users/{userId}", name="delete_user", methods="DELETE")
      */
-    public function deleteUser($userId, UserRepository $urepo, EntityManagerInterface $em)
+    public function delete($userId, UserRepository $urepo, EntityManagerInterface $em)
     {   
         $user = $urepo->find($userId);
         if(!$user) {
@@ -82,7 +84,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users/{userId}", name="validated_vacation", methods={"PUT"})
      */
-    public function update($userId, UserRepository $urepo, Request $request, EntityManagerInterface $em)
+    public function edit($userId, UserRepository $urepo, Request $request, EntityManagerInterface $em)
     {
         $data = json_decode($request->getContent());
         $code = 200;

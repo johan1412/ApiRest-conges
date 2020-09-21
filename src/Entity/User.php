@@ -30,7 +30,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user_add"})
+     * @Groups({"user_list", "user_add"})
      * @Assert\NotBlank
      * @Assert\Email()
      */
@@ -54,7 +54,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type = "json")
-     * @Groups({"user_add"})
+     * @Groups({"user_list", "user_add"})
      * @Assert\NotBlank
      */
     private $roles = [];

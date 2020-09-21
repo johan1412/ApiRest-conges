@@ -90,7 +90,7 @@ class VacationController extends AbstractController
     /**
      * @Route("/api/users/{userId}/vacations/{vacationId}", name="validated_vacation", methods={"PATCH"})
      */
-    public function update($userId, $vacationId, VacationRepository $vrepo, Request $request, EntityManagerInterface $em)
+    public function edit($userId, $vacationId, VacationRepository $vrepo, Request $request, EntityManagerInterface $em)
     {
         $data = json_decode($request->getContent());
         $code = 200;
