@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
 {
+
     //Liste des utilisateurs
     /**
      * @Route("/api/users", name="list_users", methods={"GET"})
@@ -32,9 +34,9 @@ class UserController extends AbstractController
 
     //Ajout d'un utilisateur
     /**
-     * @Route("/api/users", name="add_user", methods="POST")
+     * @Route("/api/register", name="add_user", methods="POST")
      */
-    public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em)
+    public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, UserPasswordEncoderInterface $passwordEncoder)
     {   
         $data = $request->getContent();
 
@@ -50,6 +52,8 @@ class UserController extends AbstractController
             if(count($errors) > 0) {
                 return $this->json($errors, 400);
             }
+
+            $user->setPassword($passwordEncoder->encodePassword($user, $user->getPassword()));
 
             $em->persist($user);
             $em->flush();
@@ -84,7 +88,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users/{userId}", name="validated_vacation", methods={"PUT"})
      */
-    public function edit($userId, UserRepository $urepo, Request $request, EntityManagerInterface $em)
+    public function edit($userId, UserRepository $urepo, Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $passwordEncoder)
     {
         $data = json_decode($request->getContent());
         $code = 200;
@@ -100,7 +104,7 @@ class UserController extends AbstractController
         $user->firstname = $data->firstname;
         $user->lastname = $data->lastname;
         $user->roles = "employee";
-        $user->password = $data->password;
+        $user->password = $passwordEncoder->encodePassword($user, $data->password);
         
 
         $em->persist($user);
