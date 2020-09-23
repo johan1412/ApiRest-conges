@@ -15,11 +15,13 @@ class SecurityController extends AbstractController
      */
     public function login()
     {
-        $user = $this->getUser();
+        /*$user = $this->getUser();
 
         return $this->json([
             'email' => $user->getUsername(),
             'roles' => $user->getRoles(),
-        ]);
+        ]);*/
+
+        return $this->json("Ici normalement renvoi un token", 200);
     }
 }

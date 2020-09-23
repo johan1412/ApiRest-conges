@@ -41,6 +41,7 @@ class VacationController extends AbstractController
      */
     public function create($userId, Request $request, UserRepository $userRepo, EntityManagerInterface $em, ValidatorInterface $validator)
     {
+        //recupère les données de la requète
         $data = $request->getContent();
 
         $encoders = [new JsonEncoder()];
@@ -48,10 +49,12 @@ class VacationController extends AbstractController
         $serializer = new Serializer($normalizers, $encoders);
 
         try {
+            //transformer les donnees en objet Vacation
             $vacation = $serializer->deserialize($data, Vacation::class, "json");
             $vacation->setStatus("en attente");
             $vacation->setEmployee($userRepo->find($userId));
 
+            //verifier si les donnees de l'objet valident les contraintes de l'entité User
             $errors = $validator->validate($vacation);
             if(count($errors) > 0) {
                 return $this->json($errors, 400);
@@ -93,7 +96,6 @@ class VacationController extends AbstractController
     public function edit($userId, $vacationId, VacationRepository $vrepo, Request $request, EntityManagerInterface $em)
     {
         $data = json_decode($request->getContent());
-        $code = 200;
 
         $vacation = $vrepo->find($vacationId);
 

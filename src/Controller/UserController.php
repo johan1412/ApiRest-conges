@@ -32,6 +32,23 @@ class UserController extends AbstractController
 
 
 
+    //Obtenir les informations d'un utilisateur
+    /**
+     * @Route("/api/users/{userId}", name="get_user", methods={"GET"})
+     */
+    public function read_user($userId, UserRepository $urepo)
+    {
+        $user = $urepo->find($userId);
+
+        if(!$user) {
+            return $this->json("L'id ne correspond à aucun utilisateur", 400);
+        }
+
+        return $this->json($user, 200, [], ['groups' => 'user_list']);
+    }
+
+
+
     //Ajout d'un utilisateur
     /**
      * @Route("/api/register", name="add_user", methods="POST")
@@ -48,6 +65,7 @@ class UserController extends AbstractController
             $user = $serializer->deserialize($data, User::class, "json");
             $user->setRoles(["employee"]);
 
+            //verifier si les donnees de l'objet valident les contraintes de l'entité User
             $errors = $validator->validate($user);
             if(count($errors) > 0) {
                 return $this->json($errors, 400);
@@ -95,11 +113,14 @@ class UserController extends AbstractController
 
         $user = $urepo->find($userId);
 
+        //si $user n'existe pas alors on le créer (car méthode PUT)
         if(!$user) {
             $user = new User();
+            //on change le code en 201 pour envoyer dans la réponse qu'il y a eu une création
             $code = 201;
         }
 
+        //on récupère toutes les données de la requete et on les mets dans le user récupéré ou créé
         $user->email = $data->email;
         $user->firstname = $data->firstname;
         $user->lastname = $data->lastname;
